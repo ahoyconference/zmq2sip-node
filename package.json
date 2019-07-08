@@ -1,0 +1,20 @@
+{
+  "name": "zmq2sip-node",
+  "description": "NodeJS component to turn zmq2sip into rtc2sip, messagebus included!",
+  "version": "0.0.1",
+  "author": "Klaus-Peter Junghanns",
+  "private": false,
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "dependencies": {
+    "express": "4.x",
+    "node-uuid": "*",
+    "ws": "^1.1.1",
+    "zeromq": "5.1.0"
+  },
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node server.js"
+  }
+}
