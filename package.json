@@ -8,9 +8,8 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "express": "4.x",
     "node-uuid": "*",
-    "ws": "^1.1.1",
+    "ws": "^7.1.0",
     "zeromq": "5.1.0"
   },
   "scripts": {

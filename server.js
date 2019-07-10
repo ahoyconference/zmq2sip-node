@@ -1,8 +1,7 @@
 const config = require('./config');
-const express = require('express');
 const uuid = require('node-uuid');
 const crypto = require('crypto');
-const WebSocketServer = require('ws').Server;
+const WebSocket = require('ws');
 const zmq = require('zeromq');
 
 function shutdown() {
@@ -27,20 +26,12 @@ routerSocket.on('message', function(address, to, from, timestamp, message) {
   pubSocket.send([to, from, timestamp, message]);
 });
 
-// start the webSocket server
-const app = express();
-const server = require('http').createServer(app);
-
-server.listen(config.webSocket.port, function() {
-  console.log('listening for websocket connections on port '+ server.address().port);
-});
-
-const ws = new WebSocketServer({server: server, handleProtocols: "ahoyrtc-protocol"});
-ws.on('connection', function(connection) {
+const wss = new WebSocket.Server({ port: config.webSocket.port });
+wss.on('connection', function connection(ws) {
   const requestCallbacks = {};
   const keepAliveTimer = setInterval(function() {
     try {
-      connection.send('{}');
+      ws.send('{}');
     } catch (error) {}
   }, config.webSocket.keepAliveIntervalMs);
 
@@ -63,7 +54,7 @@ ws.on('connection', function(connection) {
     try {
       var json = JSON.parse(message);
       if (json.webrtc) {
-        connection.send(JSON.stringify(
+        ws.send(JSON.stringify(
           {
     	    messageEvent: {
     		to: to,
@@ -85,7 +76,7 @@ ws.on('connection', function(connection) {
     }
   });
 
-  connection.on('message', function(message) {
+  ws.on('message', function(message) {
     try {
       var msg = JSON.parse(message);
       if (msg) {
@@ -94,7 +85,7 @@ ws.on('connection', function(connection) {
           const requestUuid = uuid.v4();
           requestCallbacks[requestUuid] = function(response) {
             if (!response || !response.success || !response.context || !response.context.id) {
-              connection.send(JSON.stringify(
+              ws.send(JSON.stringify(
                 {
                   identityResponse: {
                     success: false,
@@ -104,7 +95,7 @@ ws.on('connection', function(connection) {
               ));
             } else {
               sipContextId = response.context.id;
-              connection.send(JSON.stringify(
+              ws.send(JSON.stringify(
                 {
                   identityResponse: {
                     success: true,
@@ -159,7 +150,7 @@ ws.on('connection', function(connection) {
     }
   });
 
-  connection.on('close', function() {
+  ws.on('close', function() {
     clearInterval(keepAliveTimer);
     if (sipContextId) {
       // free all allocated SIP resources (hangup active calls, unregister registrations)
