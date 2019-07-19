@@ -119,7 +119,7 @@ wss.on('connection', function connection(ws) {
         } else if (msg.messageRequest && msg.messageRequest.message) {
           // add the SIP context ID to the message if applicable
           if (msg.messageRequest.message.sip) {
-            msg.messageRequest.message.sip.context = sipContextId;
+            msg.messageRequest.message.sip.context = { id: sipContextId };
           } else if (msg.messageRequest.message.webrtc) {
             if (msg.messageRequest.message.webrtc.sessionOffer) {
               if (!msg.messageRequest.message.webrtc.sessionOffer.sip) {
