@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "node-uuid": "*",
-    "ws": "^7.1.0",
-    "zeromq": "5.1.0"
+    "ws": "^7.2.1",
+    "zeromq": "5.2.0"
   },
   "scripts": {
     "prestart": "npm install",
