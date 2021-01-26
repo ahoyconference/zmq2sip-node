@@ -64,12 +64,25 @@ wss.on('connection', function connection(ws) {
     	    }
           }
         ));
-      } else if (json.sip && json.sip.createContextResponse) {
-	const callback = requestCallbacks[json.sip.createContextResponse.uuid];
-	if (callback) {
-	  delete requestCallbacks[json.sip.createContextResponse.uuid];
-	  callback(json.sip.createContextResponse);
-	}
+      } else if (json.sip) {
+        if (json.sip.createContextResponse) {
+          const callback = requestCallbacks[json.sip.createContextResponse.uuid];
+          if (callback) {
+            delete requestCallbacks[json.sip.createContextResponse.uuid];
+            callback(json.sip.createContextResponse);
+          }
+        } else {
+          ws.send(JSON.stringify(
+            {
+	      messageEvent: {
+	        to: to,
+	        from: from,
+	        timestamp: timestamp,
+	        message: json
+	      }
+            }
+	  ));
+        }
       }
     } catch (error) {
       console.log(error);
