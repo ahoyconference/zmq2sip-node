@@ -65,13 +65,29 @@ wss.on('connection', function connection(ws) {
           }
         ));
       } else if (json.sip) {
+        var forward = false;
         if (json.sip.createContextResponse) {
           const callback = requestCallbacks[json.sip.createContextResponse.uuid];
           if (callback) {
             delete requestCallbacks[json.sip.createContextResponse.uuid];
             callback(json.sip.createContextResponse);
           }
+        } else if (json.sip.destroyContextResponse) {
+        } else if (json.sip.registerResponse) {
+          if (json.sip.registerResponse.address) {
+            sub.subscribe(json.sip.registerResponse.address);
+          }
+          forward = true;
+        } else if (json.sip.unregisterResponse) {
+          if (json.sip.unregisterResponse.address) {
+            sub.unsubscribe(json.sip.unregisterResponse.address);
+          }
+          forward = true;
         } else {
+          forward = true;
+        }
+
+        if (forward) {
           ws.send(JSON.stringify(
             {
 	      messageEvent: {
